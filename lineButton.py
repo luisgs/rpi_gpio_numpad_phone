@@ -5,8 +5,10 @@ import logging, sys
 
 logging.basicConfig(stream=sys.stderr, level=logging.INFO)
 
-
-
+#
+# readLine
+# This function returns whether or not (True, Flase) phone:
+# is hung up (False or off the hook (True)
 def readLine():
   B1 = 7
   B2 = 8
@@ -26,6 +28,7 @@ def readLine():
   #GPIO.setup(C3, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 
   GPIO.output(B1, GPIO.HIGH)
+
   if (GPIO.input(B2) == 0):
     logging.info(status[0])
     return True
