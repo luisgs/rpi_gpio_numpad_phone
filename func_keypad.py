@@ -15,6 +15,7 @@ logging.basicConfig(stream=sys.stderr, level=logging.INFO)
 
 
 # GLOBAL VARIABLES
+# Sound files
 signal_tone = "media/audio/phone-signal-tone.mp3"
 busy_line = "media/audio/phone-busy-1.mp3"
 
@@ -29,22 +30,24 @@ def play_sound(option):
     global pygame
     global signal_tone
 
-    logging.info("Play_sound")
+    logging.info("Play_sound:")
+
+    pygame.mixer.music.load(signal_tone)
 
     while True:
         if lineButton.readLine():
-            logging.info("Play_sound: PHONE is ON")
-            logging.info("singla tone: " + signal_tone)
-            pygame.mixer.music.load(signal_tone)
+#            logging.info("Play_sound: PHONE is ON")
+            logging.info("Play_Sound: Signal tone: " + signal_tone)
+            # pygame.mixer.music.load(signal_tone)
             pygame.mixer.music.play()
 
             while pygame.mixer.music.get_busy() and lineButton.readLine():
                 continue
         else:
-            logging.info("Play_sound: PHONE is OFF")
-            pygame.mixer.music.stop()
+#            logging.info("Play_sound: PHONE is OFF")
+            if pygame.mixer.get_init():
+                pygame.mixer.music.stop()
 
-        logging.info("Play_sound: looping back")
 
 
 # GPIO ports for reading
@@ -114,7 +117,7 @@ def readLine(line, characters):
 #
 #   READ_PHONE_NUMBER
 #   
-#       We read all key strokes frmo keypad during a max time
+#       We read all key strokes from keypad during a max time
 #
 def read_phone_number():
     # Step in time
@@ -171,6 +174,7 @@ def main():
     logging.info("MAIN:")
     # Fire up thread for singal or busy tone sounds
     thread_sound = Thread(target=play_sound, args=(1, ))
+    thread_sound.setDaemon(True)    # Thread is set Daemon
     thread_sound.start()
     
     while True:
@@ -181,7 +185,6 @@ def main():
             if (not code):
                 logging.info("MAIN: CODE is EMPTY")
                 singal_tone = busy_line
-                logging.info("singla tone: " + signal_tone)
                 logging.info("busy tone: " + busy_line)
             else:
                 logging.info("MAIN: CODE: " + code)
