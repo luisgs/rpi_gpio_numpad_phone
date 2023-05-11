@@ -32,22 +32,23 @@ def play_sound(option):
 
     logging.info("Play_sound:")
 
-    pygame.mixer.music.load(signal_tone)
-
     while True:
         if lineButton.readLine():
-#            logging.info("Play_sound: PHONE is ON")
+            logging.info("Play_sound: PHONE is ON")
             logging.info("Play_Sound: Signal tone: " + signal_tone)
-            # pygame.mixer.music.load(signal_tone)
-            pygame.mixer.music.play()
-
-            while pygame.mixer.music.get_busy() and lineButton.readLine():
+#            pygame.mixer.Channel(1).play(pygame.mixer.Sound(signal_tone))
+#            while (pygame.mixer.Channel(1).get_busy() and lineButton.readLine()):
+#                continue
+            pygame.mixer.music.load(signal_tone)
+            pygame.mixer.music.play(1) 
+            while (pygame.mixer.music.get_busy() and lineButton.readLine()):
                 continue
         else:
-#            logging.info("Play_sound: PHONE is OFF")
+            logging.info("Play_sound: PHONE is OFF")
             if pygame.mixer.get_init():
+                logging.info("Play_sound: MUSIC HAS TO STOP. PHONE Is OFF")
                 pygame.mixer.music.stop()
-
+#            time.sleep(0.3)
 
 
 # GPIO ports for reading
@@ -126,7 +127,7 @@ def read_phone_number():
 
     # Waiting time (#steps)
     # time waiting to send out read code
-    waiting_time = 300
+    waiting_time = 400
 
     # treshold
     treshold = 0
@@ -176,7 +177,9 @@ def main():
     thread_sound = Thread(target=play_sound, args=(1, ))
     thread_sound.setDaemon(True)    # Thread is set Daemon
     thread_sound.start()
-    
+   
+    signal_tone_ori = signal_tone
+
     while True:
         code = False 
         if lineButton.readLine():   # phone is picked up!
@@ -184,13 +187,16 @@ def main():
             code = read_phone_number()
             if (not code):
                 logging.info("MAIN: CODE is EMPTY")
-                singal_tone = busy_line
+                signal_tone = busy_line
                 logging.info("busy tone: " + busy_line)
+#                time.sleep(0.3)
             else:
                 logging.info("MAIN: CODE: " + code)
+                signal_tone = signal_tone_ori
         else:
             logging.info("MAIN: PHONE is DOWN")
-
+            signal_tone = signal_tone_ori
+            time.sleep(0.3)
 try:
     if __name__ == "__main__":
         main()
